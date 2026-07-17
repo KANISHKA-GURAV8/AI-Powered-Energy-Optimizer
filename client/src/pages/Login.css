@@ -1,0 +1,213 @@
+/* ============================================================
+   Login / Signup Page Styles
+   ============================================================ */
+
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* ── Left Panel — Branding ────────────────────────────────── */
+.login-branding {
+  background: linear-gradient(160deg, #0b1e36 0%, #0a2e1a 60%, #0d3d22 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated background circles */
+.login-branding::before {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%);
+  top: -100px; left: -100px;
+  border-radius: 50%;
+}
+.login-branding::after {
+  content: '';
+  position: absolute;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 70%);
+  bottom: -80px; right: -80px;
+  border-radius: 50%;
+}
+
+.brand-logo {
+  width: 90px; height: 90px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border-radius: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.5rem;
+  margin-bottom: 24px;
+  box-shadow: 0 20px 60px rgba(34,197,94,0.4);
+  animation: pulse-green 2.5s ease-in-out infinite;
+  z-index: 1;
+}
+
+.brand-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #fff;
+  text-align: center;
+  z-index: 1;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.brand-title span { color: #22c55e; }
+
+.brand-subtitle {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.55);
+  text-align: center;
+  z-index: 1;
+  line-height: 1.6;
+  max-width: 300px;
+  margin-bottom: 40px;
+}
+
+.brand-features {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 1;
+  width: 100%;
+  max-width: 280px;
+}
+.brand-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(34,197,94,0.15);
+  border-radius: 12px;
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.75);
+}
+.brand-feature .feat-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* ── Right Panel — Auth Form ──────────────────────────────── */
+.login-form-panel {
+  background: #0a1628;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 48px;
+}
+
+.login-form-box {
+  width: 100%;
+  max-width: 420px;
+  animation: fadeInUp 0.5s ease;
+}
+
+.login-form-box h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #f0f6ff;
+  margin-bottom: 6px;
+}
+.login-form-box .sub-heading {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  margin-bottom: 32px;
+}
+
+.tabs {
+  display: flex;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(34,197,94,0.15);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 28px;
+}
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.tab-btn.active {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(34,197,94,0.35);
+}
+
+.form-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.forgot-link {
+  text-align: right;
+  margin-top: -10px;
+  margin-bottom: 16px;
+}
+.forgot-link a {
+  color: #22c55e;
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+.forgot-link a:hover { text-decoration: underline; }
+
+.social-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: #f0f6ff;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.social-btn:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.2);
+}
+.social-btns { display: flex; gap: 12px; margin-top: 4px; }
+
+.signin-link {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+.signin-link span {
+  color: #22c55e;
+  font-weight: 600;
+  cursor: pointer;
+}
+.signin-link span:hover { text-decoration: underline; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .login-page { grid-template-columns: 1fr; }
+  .login-branding { display: none; }
+  .login-form-panel { padding: 40px 24px; }
+}
