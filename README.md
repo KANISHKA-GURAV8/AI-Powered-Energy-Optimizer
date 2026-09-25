@@ -1,5 +1,5 @@
 # ⚡ AI Powered Energy Consumption Optimizer
-### MERN Stack Project — Full Documentation
+### Python Flask + React Project — Full Documentation
 
 ---
 
@@ -25,103 +25,96 @@ Major_Project/
 │   │   └── index.css              ← Global design system
 │   └── .env                       ← VITE_API_BASE_URL, OPENWEATHER_KEY
 │
-└── server/                    # Node.js + Express Backend
-    ├── models/
-    │   ├── User.js                ← Mongoose User schema (bcrypt)
-    │   └── EnergyLog.js           ← Daily kWh consumption logs
+└── server/                    # Python + Flask Backend
+    ├── ml/                        # Machine Learning Models
+    │   ├── predict.py             ← ML Prediction Logic
+    │   ├── recommend.py           ← AI Recommendations
+    │   └── models/                ← Serialized Scikit-Learn models
     ├── routes/
-    │   ├── auth.js                ← POST /login, POST /register
-    │   └── energy.js              ← GET /weather, /logs, /dashboard
-    ├── middleware/
-    │   └── authMiddleware.js      ← JWT protect() middleware
-    ├── index.js                   ← Express server entry
-    ├── seed.js                    ← Demo data seeder
-    └── .env                       ← PORT, MONGO_URI, JWT_SECRET, WEATHER_KEY
+    │   ├── auth.py                ← POST /api/auth/login, /register
+    │   ├── energy.py              ← GET /api/energy/weather, /logs, /dashboard
+    │   ├── appliances.py          ← CRUD operations for appliances
+    │   └── middleware.py          ← JWT protection & helpers
+    ├── app.py                     ← Flask server entry & config
+    ├── build_features.py          ← Data processing for ML
+    ├── generate_reason.py         ← Recommendation logic
+    ├── requirements.txt           ← Python dependencies
+    └── .env                       ← PORT, MONGO_URI, JWT_SECRET, OPENWEATHER_API_KEY
 ```
 
 ---
 
 ## 🚀 How to Run
 
-### Step 1 — Get OpenWeatherMap API Key (FREE)
-1. Go to [https://openweathermap.org/api](https://openweathermap.org/api)
-2. Sign up for free → copy your API key
-3. Paste it into both `.env` files:
-   - `server/.env` → `OPENWEATHER_API_KEY=your_key_here`
-   - `client/.env` → `VITE_OPENWEATHER_API_KEY=your_key_here`
+### Step 1 — Database and API Setup
+1. **OpenWeatherMap**: Go to [OpenWeatherMap](https://openweathermap.org/api), sign up, get your free API key.
+2. **MongoDB**: Have a local MongoDB running (`mongodb://localhost:27017`) OR a cloud Atlas cluster.
+3. Paste these credentials into both `.env` files:
+   - `server/.env` → `OPENWEATHER_API_KEY` and `MONGO_URI`
+   - `client/.env` → `VITE_OPENWEATHER_API_KEY` (if used directly by frontend)
 
-### Step 2 — Install MongoDB
-- Download: [https://www.mongodb.com/try/download/community](https://www.mongodb.com/try/download/community)
-- Start MongoDB service (runs on `mongodb://localhost:27017`)
-
-### Step 3 — Start Backend
+### Step 2 — Start Backend (Python/Flask)
+Open a terminal and run:
 ```bash
 cd server
-npm install
-node index.js
+python -m venv venv           # Optional: Create virtual environment
+.\venv\Scripts\activate       # Optional: Activate it (Windows)
+pip install -r requirements.txt
+python app.py
 # Server runs on http://localhost:5000
 ```
 
-### Step 4 — (Optional) Seed demo data
-```bash
-cd server
-node seed.js
-# Login: demo@energy.com / password123
-```
-
-### Step 5 — Start Frontend
+### Step 3 — Start Frontend (React/Vite)
+Open a **second** terminal and run:
 ```bash
 cd client
+npm install
 npm run dev
 # App runs on http://localhost:5173
 ```
 
-### Step 6 — Open App
+### Step 4 — Open App
 Go to: **http://localhost:5173**
-
-> **💡 Demo Mode**: If MongoDB is not running, you can still sign up/login and the dashboard shows demo data automatically.
 
 ---
 
-## 🏗️ MERN Architecture (For Project Explanation)
+## 🏗️ Architecture (React + Flask + MongoDB + ML)
 
 ```
-React (Vite)                Express.js              MongoDB
-─────────────               ──────────              ───────
-Login Page      →  POST /api/auth/register  →  User.save()
-                ←  { name, token, city }   ←  bcrypt hash pw
+React (Vite)                Flask (Python)          MongoDB / ML Models
+─────────────               ──────────────          ───────────────────
+Login Page      →  POST /api/auth/register  →  PyMongo insert()
+                ←  { token, user }         ←  bcrypt hash pw
 
-Dashboard       →  GET /api/energy/weather →  fetch OpenWeatherMap
-                ←  { temp, humidity, wind }←  real-time response
+Dashboard       →  GET /api/energy/weather →  fetch OpenWeatherMap API
+                ←  { temp, humidity, ... } ←  real-time response
 
-                →  GET /api/energy/logs    →  EnergyLog.find()
+                →  GET /api/energy/logs    →  PyMongo find()
                 ←  [ {date, kWh} × 7 ]    ←  last 7 days
 
-Recharts        →  AreaChart data          ←  formatted array
-WeatherWidget   ←  live weather data
-StatCards       ←  aggregated stats
+ML Predictions  →  POST /api/energy/recommendations → Scikit-Learn Model predict()
+                ←  [ recommendations ]     ← AI output based on data
 ```
 
 ### Key Concepts Used:
 | Concept | Where Used |
 |---------|-----------|
-| **JWT Authentication** | `authMiddleware.js` — `jwt.sign()` + `jwt.verify()` |
-| **bcrypt Password Hashing** | `User.js` pre-save hook |
+| **JWT Authentication** | `Flask-JWT-Extended` — `create_access_token()` + `@jwt_required()` |
+| **Password Hashing** | `bcrypt` python library in `auth.py` |
 | **React Context API** | `AuthContext.jsx` — global auth state |
 | **Axios Interceptors** | `api.js` — auto-attach JWT to all requests |
-| **Mongoose ODM** | `User.js`, `EnergyLog.js` — schema + model |
+| **PyMongo Database** | `auth.py`, `energy.py` — native MongoDB queries |
+| **Machine Learning** | `Scikit-Learn`, `Pandas` for energy predictions and insights |
 | **Recharts AreaChart** | `Dashboard.jsx` — gradient area chart |
-| **OpenWeatherMap API** | `energy.js` route + `Dashboard.jsx` |
-| **React Router v6** | `App.jsx` — protected routes |
+| **OpenWeatherMap API** | `energy.py` route |
 
 ---
 
 ## 🌤️ Real-Time Weather API
-- Provider: [OpenWeatherMap](https://openweathermap.org/) (free tier: 60 calls/min)
+- Provider: [OpenWeatherMap](https://openweathermap.org/) (free tier)
 - Endpoint: `GET /data/2.5/weather?q={city}&appid={key}&units=metric`
-- Used in: `server/routes/energy.js` → `/api/energy/weather`
+- Used in: `server/routes/energy.py` → `/api/energy/weather`
 - Dashboard shows: Temperature, Feels Like, Humidity %, Wind speed (km/h)
-- Weather icon codes (`01d`, `02d` etc.) mapped to emoji in `Dashboard.jsx`
 
 ---
 
@@ -129,22 +122,21 @@ StatCards       ←  aggregated stats
 
 | Widget | Data Source |
 |--------|-------------|
-| Units Consumed Today | `EnergyLog` collection (today's entry) |
-| Current Cost (₹) | units × ₹5/kWh tariff |
-| Predicted Monthly Bill | avg daily × 30 × tariff |
-| Units Saved | comparison vs yesterday's log |
+| Units Consumed Today | PyMongo query for today's logs |
+| Current Cost (₹) | units × standard tariff |
+| Predicted Monthly Bill | ML predictions & aggregations |
 | Energy Trend Chart | Recharts `AreaChart` with last 7 log entries |
-| Weather Widget | OpenWeatherMap real-time API |
-| Active Tariff Box | Static ₹8/kWh peak hours display |
+| Weather Widget | OpenWeatherMap real-time API via Flask |
+| Recommendations | Flask backend parsing ML `predict.py` logic |
 
 ---
 
 ## 🔐 Authentication Flow
 ```
 1. User fills signup form → POST /api/auth/register
-2. Server: bcrypt hashes password → saves to MongoDB
-3. Server: signs JWT (7 day expiry) → returns to client
-4. Client: stores token in localStorage
-5. All subsequent requests: axios interceptor adds "Authorization: Bearer <token>"
-6. Protected routes: authMiddleware.js verifies JWT → attaches req.user
+2. Server (Flask): bcrypt hashes password → PyMongo saves to MongoDB
+3. Server (Flask): Flask-JWT-Extended signs JWT → returns to client
+4. Client (React): stores token in localStorage
+5. All subsequent requests: Axios interceptor adds "Authorization: Bearer <token>"
+6. Protected routes: @jwt_required() decorator verifies JWT in Flask routes
 ```
