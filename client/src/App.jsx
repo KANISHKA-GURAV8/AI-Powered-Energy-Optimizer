@@ -6,6 +6,9 @@ import Sidebar from './components/Sidebar';
 import LoginPage from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Appliances from './pages/Appliances';
+import Recommendations from './pages/Recommendations';
+import Analytics from './pages/Analytics';
+import Settings from './pages/Settings';
 import './index.css';
 
 /**
@@ -53,11 +56,11 @@ const App = () => {
             }
           />
 
-          {/* Placeholder routes (future pages) */}
-          <Route path="/appliances" element={<PrivateRoute><AppLayout><Appliances /></AppLayout></PrivateRoute>} />
-          <Route path="/analytics"       element={<PrivateRoute><AppLayout><PlaceholderPage title="Analytics" /></AppLayout></PrivateRoute>} />
-          <Route path="/recommendations" element={<PrivateRoute><AppLayout><PlaceholderPage title="Recommendations" /></AppLayout></PrivateRoute>} />
-          <Route path="/settings"        element={<PrivateRoute><AppLayout><PlaceholderPage title="Settings" /></AppLayout></PrivateRoute>} />
+          {/* Real routes connected to database & ML model */}
+          <Route path="/appliances"      element={<PrivateRoute><AppLayout><Appliances /></AppLayout></PrivateRoute>} />
+          <Route path="/analytics"       element={<PrivateRoute><AppLayout><Analytics /></AppLayout></PrivateRoute>} />
+          <Route path="/recommendations" element={<PrivateRoute><AppLayout><Recommendations /></AppLayout></PrivateRoute>} />
+          <Route path="/settings"        element={<PrivateRoute><AppLayout><Settings /></AppLayout></PrivateRoute>} />
 
           {/* Default redirect */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

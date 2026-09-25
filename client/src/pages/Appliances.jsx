@@ -1,21 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiPlus, FiMinus, FiEdit2, FiTrash2, FiX, FiZap } from 'react-icons/fi';
+import api from '../services/api';
 import './Appliances.css';
-
-/**
- * Appliances Page
- * ─────────────────────────────────────────────────────────────
- * Displays a table of home appliances with:
- *  - Appliance name + icon
- *  - Power consumption in Watts
- *  - Total quantity available
- *  - Active count (+/- buttons, 0 to max quantity)
- *  - Status toggle (ON/OFF) — turning ON auto-sets active to 1 if 0
- *  - Actions: Edit, Delete
- *  - Add Appliance modal to create new rows
- *
- * Data is stored in React state (can be wired to MongoDB later)
- */
 
 // ── Appliance emoji map ───────────────────────────────────────
 const ICONS = {
@@ -33,74 +19,134 @@ const ICONS = {
 };
 const getIcon = (name) => ICONS[name] || '⚡';
 
-// ── Default appliance list with specs ─────────────────────────
+// ── Default appliance list with specs for auto-seeding ─────────
 const DEFAULT_APPLIANCES = [
-  { id: 1, name: 'AC',              power: 1500, quantity: 2,  active: 0, status: false },
-  { id: 2, name: 'Fridge',          power: 180,  quantity: 1,  active: 0, status: false },
-  { id: 3, name: 'Geyser',          power: 2000, quantity: 2,  active: 0, status: false },
-  { id: 4, name: 'Water Purifier',  power: 50,   quantity: 1,  active: 0, status: false },
-  { id: 5, name: 'WiFi Router',     power: 15,   quantity: 1,  active: 0, status: false },
-  { id: 6, name: 'Washing Machine', power: 500,  quantity: 1,  active: 0, status: false },
-  { id: 7, name: 'Lights',          power: 9,    quantity: 12, active: 0, status: false },
-  { id: 8, name: 'TV',              power: 120,  quantity: 1,  active: 0, status: false },
-  { id: 9, name: 'Mixer',           power: 750,  quantity: 1,  active: 0, status: false },
-  { id: 10, name: 'Cooler',         power: 200,  quantity: 1,  active: 0, status: false },
-  { id: 11, name: 'Iron Box',       power: 1000, quantity: 1,  active: 0, status: false },
+  { name: 'AC',              power: 1500, quantity: 2,  priority: 'Medium' },
+  { name: 'Fridge',          power: 180,  quantity: 1,  priority: 'Essential' },
+  { name: 'Geyser',          power: 2000, quantity: 2,  priority: 'Medium' },
+  { name: 'Water Purifier',  power: 50,   quantity: 1,  priority: 'Essential' },
+  { name: 'WiFi Router',     power: 15,   quantity: 1,  priority: 'Essential' },
+  { name: 'Washing Machine', power: 500,  quantity: 1,  priority: 'Non-essential' },
+  { name: 'Lights',          power: 9,    quantity: 12, priority: 'Essential' },
+  { name: 'TV',              power: 120,  quantity: 1,  priority: 'Non-essential' },
+  { name: 'Mixer',           power: 750,  quantity: 1,  priority: 'Non-essential' },
+  { name: 'Cooler',         power: 200,  quantity: 1,  priority: 'Medium' },
+  { name: 'Iron Box',       power: 1000, quantity: 1,  priority: 'Non-essential' },
 ];
 
 const Appliances = () => {
-  const [appliances, setAppliances] = useState(DEFAULT_APPLIANCES);
+  const [appliances, setAppliances] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem]   = useState(null); // null = add, object = edit
-  const [form, setForm] = useState({ name: '', power: '', quantity: '' });
+  const [form, setForm] = useState({ name: '', power: '', quantity: '', priority: 'Medium' });
   const [formError, setFormError] = useState('');
 
+  // ── Fetch Appliances from Backend ─────────────────────────────
+  const fetchAppliances = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/appliances');
+      if (res.data.length === 0) {
+        // Auto-seed defaults if database is empty
+        const seedPromises = DEFAULT_APPLIANCES.map(app => 
+          api.post('/appliances', {
+            name: app.name,
+            power: app.power,
+            quantity: app.quantity,
+            priority: app.priority,
+            active: 0,
+            status: false
+          })
+        );
+        const seeded = await Promise.all(seedPromises);
+        setAppliances(seeded.map(r => r.data));
+      } else {
+        setAppliances(res.data);
+      }
+      setError('');
+    } catch (err) {
+      setError('Failed to fetch appliances from server.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAppliances();
+  }, []);
+
   // ── Active count: increment ───────────────────────────────────
-  const incrementActive = (id) => {
-    setAppliances((prev) =>
-      prev.map((a) =>
-        a.id === id && a.active < a.quantity
-          ? { ...a, active: a.active + 1, status: true }
-          : a
-      )
-    );
+  const incrementActive = async (id) => {
+    const item = appliances.find(a => a._id === id);
+    if (!item || item.active >= item.quantity) return;
+
+    const newActive = item.active + 1;
+    try {
+      // Optimistic UI update
+      setAppliances(prev => prev.map(a => a._id === id ? { ...a, active: newActive, status: true } : a));
+      await api.put(`/appliances/${id}`, { active: newActive, status: true });
+    } catch (err) {
+      console.error('Failed to update active count', err);
+      // Revert on error
+      fetchAppliances();
+    }
   };
 
   // ── Active count: decrement ───────────────────────────────────
-  const decrementActive = (id) => {
-    setAppliances((prev) =>
-      prev.map((a) => {
-        if (a.id !== id) return a;
-        const newActive = Math.max(0, a.active - 1);
-        return { ...a, active: newActive, status: newActive > 0 };
-      })
-    );
+  const decrementActive = async (id) => {
+    const item = appliances.find(a => a._id === id);
+    if (!item || item.active === 0) return;
+
+    const newActive = item.active - 1;
+    const newStatus = newActive > 0;
+    try {
+      // Optimistic UI update
+      setAppliances(prev => prev.map(a => a._id === id ? { ...a, active: newActive, status: newStatus } : a));
+      await api.put(`/appliances/${id}`, { active: newActive, status: newStatus });
+    } catch (err) {
+      console.error('Failed to update active count', err);
+      fetchAppliances();
+    }
   };
 
   // ── Toggle ON/OFF ─────────────────────────────────────────────
-  const toggleStatus = (id) => {
-    setAppliances((prev) =>
-      prev.map((a) => {
-        if (a.id !== id) return a;
-        const newStatus = !a.status;
-        // Turning ON: if active is 0, set to 1 automatically
-        const newActive = newStatus && a.active === 0 ? 1 : newStatus ? a.active : 0;
-        return { ...a, status: newStatus, active: newActive };
-      })
-    );
+  const toggleStatus = async (id) => {
+    const item = appliances.find(a => a._id === id);
+    if (!item) return;
+
+    const newStatus = !item.status;
+    const newActive = newStatus && item.active === 0 ? 1 : newStatus ? item.active : 0;
+
+    try {
+      // Optimistic UI update
+      setAppliances(prev => prev.map(a => a._id === id ? { ...a, status: newStatus, active: newActive } : a));
+      await api.put(`/appliances/${id}`, { status: newStatus, active: newActive });
+    } catch (err) {
+      console.error('Failed to toggle status', err);
+      fetchAppliances();
+    }
   };
 
   // ── Delete appliance ──────────────────────────────────────────
-  const deleteAppliance = (id) => {
+  const deleteAppliance = async (id) => {
     if (window.confirm('Delete this appliance?')) {
-      setAppliances((prev) => prev.filter((a) => a.id !== id));
+      try {
+        setAppliances(prev => prev.filter(a => a._id !== id));
+        await api.delete(`/appliances/${id}`);
+      } catch (err) {
+        console.error('Failed to delete appliance', err);
+        fetchAppliances();
+      }
     }
   };
 
   // ── Open add modal ────────────────────────────────────────────
   const openAdd = () => {
     setEditItem(null);
-    setForm({ name: '', power: '', quantity: '' });
+    setForm({ name: '', power: '', quantity: '1', priority: 'Medium' });
     setFormError('');
     setShowModal(true);
   };
@@ -108,47 +154,73 @@ const Appliances = () => {
   // ── Open edit modal ───────────────────────────────────────────
   const openEdit = (appliance) => {
     setEditItem(appliance);
-    setForm({ name: appliance.name, power: appliance.power, quantity: appliance.quantity });
+    setForm({
+      name: appliance.name,
+      power: appliance.power.toString(),
+      quantity: appliance.quantity.toString(),
+      priority: appliance.priority || 'Medium'
+    });
     setFormError('');
     setShowModal(true);
   };
 
   // ── Save add / edit ───────────────────────────────────────────
-  const handleSave = () => {
-    const { name, power, quantity } = form;
+  const handleSave = async () => {
+    const { name, power, quantity, priority } = form;
     if (!name.trim())        { setFormError('Appliance name is required'); return; }
-    if (!power || power <= 0){ setFormError('Power (watts) must be > 0');  return; }
-    if (!quantity || quantity < 1){ setFormError('Quantity must be at least 1'); return; }
+    if (!power || Number(power) <= 0){ setFormError('Power (watts) must be > 0');  return; }
+    if (!quantity || Number(quantity) < 1){ setFormError('Quantity must be at least 1'); return; }
 
-    if (editItem) {
-      // Edit existing
-      setAppliances((prev) =>
-        prev.map((a) =>
-          a.id === editItem.id
-            ? { ...a, name: name.trim(), power: Number(power), quantity: Number(quantity) }
-            : a
-        )
-      );
-    } else {
-      // Add new
-      const newId = Math.max(...appliances.map((a) => a.id), 0) + 1;
-      setAppliances((prev) => [
-        ...prev,
-        { id: newId, name: name.trim(), power: Number(power), quantity: Number(quantity), active: 0, status: false },
-      ]);
+    try {
+      setLoading(true);
+      if (editItem) {
+        // Edit existing
+        const res = await api.put(`/appliances/${editItem._id}`, {
+          name: name.trim(),
+          power: Number(power),
+          quantity: Number(quantity),
+          priority
+        });
+        setAppliances(prev => prev.map(a => a._id === editItem._id ? res.data : a));
+      } else {
+        // Add new
+        const res = await api.post('/appliances', {
+          name: name.trim(),
+          power: Number(power),
+          quantity: Number(quantity),
+          priority,
+          active: 0,
+          status: false
+        });
+        setAppliances(prev => [...prev, res.data]);
+      }
+      setShowModal(false);
+      setError('');
+    } catch (err) {
+      setFormError('Failed to save appliance. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-    setShowModal(false);
   };
 
   // ── Computed stats ────────────────────────────────────────────
+  const tariffRate   = Number(localStorage.getItem('tariffRate')) || 5.80;
   const totalActive  = appliances.filter((a) => a.status).length;
   const totalWatts   = appliances
     .filter((a) => a.status)
     .reduce((sum, a) => sum + a.power * a.active, 0);
 
+  if (loading && appliances.length === 0) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+        <div className="spinner" />
+      </div>
+    );
+  }
+
   return (
     <div className="appliances-page">
-
       {/* ── Page Header ─────────────────────────────────────── */}
       <div className="appliances-header">
         <div>
@@ -159,6 +231,12 @@ const Appliances = () => {
           <FiPlus size={16} /> Add Appliance
         </button>
       </div>
+
+      {error && (
+        <div className="alert alert-error" style={{ marginBottom: 20 }}>
+          ⚠️ {error}
+        </div>
+      )}
 
       {/* ── Summary bar ─────────────────────────────────────── */}
       <div className="appliances-summary">
@@ -176,102 +254,116 @@ const Appliances = () => {
         </div>
         <div className="summary-chip bill">
           <span className="chip-label">Est. Cost/hr</span>
-          <span className="chip-value">₹{((totalWatts / 1000) * 8).toFixed(2)}</span>
+          <span className="chip-value">₹{((totalWatts / 1000) * tariffRate).toFixed(2)}</span>
         </div>
       </div>
 
       {/* ── Table ───────────────────────────────────────────── */}
       <div className="table-card">
-        <table className="appliances-table">
-          <thead>
-            <tr>
-              <th>Appliance</th>
-              <th>Power (W)</th>
-              <th>Quantity</th>
-              <th>Active</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {appliances.map((a, idx) => (
-              <tr key={a.id} className={`table-row ${a.status ? 'row-on' : ''}`}
-                  style={{ animationDelay: `${idx * 0.04}s` }}>
-
-                {/* Appliance Name */}
-                <td>
-                  <div className="appliance-name-cell">
-                    <span className="appliance-emoji">{getIcon(a.name)}</span>
-                    <span className="appliance-name">{a.name}</span>
-                  </div>
-                </td>
-
-                {/* Power */}
-                <td>
-                  <span className="power-badge">
-                    <FiZap size={11} />
-                    {a.power} W
-                  </span>
-                </td>
-
-                {/* Quantity */}
-                <td>
-                  <span className="qty-value">{a.quantity}</span>
-                </td>
-
-                {/* Active count with +/- */}
-                <td>
-                  <div className="active-counter">
-                    <button
-                      className="counter-btn minus"
-                      onClick={() => decrementActive(a.id)}
-                      disabled={a.active === 0}
-                    >
-                      <FiMinus size={12} />
-                    </button>
-                    <span className={`counter-value ${a.active > 0 ? 'nonzero' : ''}`}>
-                      {a.active}
-                    </span>
-                    <button
-                      className="counter-btn plus"
-                      onClick={() => incrementActive(a.id)}
-                      disabled={a.active >= a.quantity}
-                    >
-                      <FiPlus size={12} />
-                    </button>
-                  </div>
-                </td>
-
-                {/* Status toggle */}
-                <td>
-                  <div
-                    className={`toggle-switch ${a.status ? 'on' : 'off'}`}
-                    onClick={() => toggleStatus(a.id)}
-                    role="switch"
-                    aria-checked={a.status}
-                  >
-                    <div className="toggle-thumb" />
-                    <span className={`toggle-label ${a.status ? 'on' : 'off'}`}>
-                      {a.status ? 'ON' : 'OFF'}
-                    </span>
-                  </div>
-                </td>
-
-                {/* Actions */}
-                <td>
-                  <div className="action-btns">
-                    <button className="action-btn edit" onClick={() => openEdit(a)} title="Edit">
-                      <FiEdit2 size={14} />
-                    </button>
-                    <button className="action-btn delete" onClick={() => deleteAppliance(a.id)} title="Delete">
-                      <FiTrash2 size={14} />
-                    </button>
-                  </div>
-                </td>
+        {appliances.length === 0 ? (
+          <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+            No appliances found. Add your first appliance above!
+          </div>
+        ) : (
+          <table className="appliances-table">
+            <thead>
+              <tr>
+                <th>Appliance</th>
+                <th>Power (W)</th>
+                <th>Priority</th>
+                <th>Quantity</th>
+                <th>Active</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {appliances.map((a, idx) => (
+                <tr key={a._id} className={`table-row ${a.status ? 'row-on' : ''}`}
+                    style={{ animationDelay: `${idx * 0.04}s` }}>
+
+                  {/* Appliance Name */}
+                  <td>
+                    <div className="appliance-name-cell">
+                      <span className="appliance-emoji">{getIcon(a.name)}</span>
+                      <span className="appliance-name">{a.name}</span>
+                    </div>
+                  </td>
+
+                  {/* Power */}
+                  <td>
+                    <span className="power-badge">
+                      <FiZap size={11} />
+                      {a.power} W
+                    </span>
+                  </td>
+
+                  {/* Priority */}
+                  <td>
+                    <span className={`priority-badge ${a.priority?.toLowerCase() || 'medium'}`}>
+                      {a.priority || 'Medium'}
+                    </span>
+                  </td>
+
+                  {/* Quantity */}
+                  <td>
+                    <span className="qty-value">{a.quantity}</span>
+                  </td>
+
+                  {/* Active count with +/- */}
+                  <td>
+                    <div className="active-counter">
+                      <button
+                        className="counter-btn minus"
+                        onClick={() => decrementActive(a._id)}
+                        disabled={a.active === 0}
+                      >
+                        <FiMinus size={12} />
+                      </button>
+                      <span className={`counter-value ${a.active > 0 ? 'nonzero' : ''}`}>
+                        {a.active}
+                      </span>
+                      <button
+                        className="counter-btn plus"
+                        onClick={() => incrementActive(a._id)}
+                        disabled={a.active >= a.quantity}
+                      >
+                        <FiPlus size={12} />
+                      </button>
+                    </div>
+                  </td>
+
+                  {/* Status toggle */}
+                  <td>
+                    <div
+                      className={`toggle-switch ${a.status ? 'on' : 'off'}`}
+                      onClick={() => toggleStatus(a._id)}
+                      role="switch"
+                      aria-checked={a.status}
+                    >
+                      <div className="toggle-thumb" />
+                      <span className={`toggle-label ${a.status ? 'on' : 'off'}`}>
+                        {a.status ? 'ON' : 'OFF'}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* Actions */}
+                  <td>
+                    <div className="action-btns">
+                      <button className="action-btn edit" onClick={() => openEdit(a)} title="Edit">
+                        <FiEdit2 size={14} />
+                      </button>
+                      <button className="action-btn delete" onClick={() => deleteAppliance(a._id)} title="Delete">
+                        <FiTrash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* ── Add / Edit Modal ─────────────────────────────────── */}
@@ -308,6 +400,21 @@ const Appliances = () => {
                 />
               </div>
               <div className="form-field">
+                <label>Priority</label>
+                <select
+                  value={form.priority}
+                  onChange={(e) => setForm({ ...form, priority: e.target.value })}
+                  style={{
+                    width: '100%', padding: '10px 12px', border: '1px solid #e2e8f0',
+                    borderRadius: 8, outline: 'none', fontSize: '0.9rem', fontFamily: 'Inter,sans-serif'
+                  }}
+                >
+                  <option value="Essential">Essential (Always ON, e.g. Fridge, Router)</option>
+                  <option value="Medium">Medium (Regular use, e.g. AC, Lights)</option>
+                  <option value="Non-essential">Non-essential (Flexible load, e.g. Washing Machine, Iron)</option>
+                </select>
+              </div>
+              <div className="form-field">
                 <label>Quantity</label>
                 <input
                   type="number"
@@ -321,8 +428,8 @@ const Appliances = () => {
 
             <div className="modal-actions">
               <button className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-              <button className="btn-save" onClick={handleSave}>
-                {editItem ? 'Save Changes' : 'Add Appliance'}
+              <button className="btn-save" onClick={handleSave} disabled={loading}>
+                {loading ? 'Saving...' : editItem ? 'Save Changes' : 'Add Appliance'}
               </button>
             </div>
           </div>

@@ -6,6 +6,11 @@ Trains a classifier that predicts whether an appliance should:
   - Suggest_OFF  : turn off (temperature/comfort based)
   - Delay_Load   : delay/avoid usage (overload/load based)
 
+Gruha Jyothi Electricity Scheme Rules (3 Tiers):
+  1. Consumption <= Entitlement (e.g. 125 units): Fully free (₹0 energy charge).
+  2. Entitlement < Consumption <= 200 units: Pay only for excess above entitlement.
+  3. Consumption > 200 units: Subsidy lost entirely (100% units billable).
+
 Input dataset: merged_energy_optimization_dataset_Jan2025_Jul2026.csv
 """
 

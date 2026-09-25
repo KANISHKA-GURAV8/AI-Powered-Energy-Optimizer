@@ -61,14 +61,89 @@ const Dashboard = () => {
   const [error, setError] = useState('');
   const [chartPeriod, setChartPeriod] = useState('Daily');
 
+  // logging form state
+  const [unitsInput, setUnitsInput] = useState('');
+  const [costInput, setCostInput] = useState('');
+  const [logSaving, setLogSaving] = useState(false);
+  const [logSuccess, setLogSuccess] = useState('');
+  const [logError, setLogError] = useState('');
+
+  // notifications state
+  const [notifications, setNotifications] = useState([]);
+
+  // Set default cost from localStorage or LT-1 standard
+  useEffect(() => {
+    const savedTariff = localStorage.getItem('tariffRate') || '5.80';
+    setCostInput(savedTariff);
+  }, []);
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const res = await api.get('/energy/notifications');
+      setNotifications(res.data);
+    } catch (err) {
+      console.warn('Failed to fetch notifications');
+    }
+  }, []);
+
+  const dismissNotification = async (nid) => {
+    try {
+      setNotifications(prev => prev.filter(n => n._id !== nid));
+      await api.post('/energy/notifications/dismiss', { notificationId: nid });
+    } catch (err) {
+      console.error('Failed to dismiss notification', err);
+      fetchNotifications();
+    }
+  };
+
+  const handleLogSubmit = async (e) => {
+    e.preventDefault();
+    if (!unitsInput || Number(unitsInput) < 0) {
+      setLogError('Please enter a valid amount of units.');
+      return;
+    }
+    if (!costInput || Number(costInput) <= 0) {
+      setLogError('Please enter a valid cost per unit.');
+      return;
+    }
+
+    try {
+      setLogSaving(true);
+      setLogError('');
+      setLogSuccess('');
+
+      await api.post('/energy/logs', {
+        unitsConsumed: parseFloat(unitsInput),
+        costPerUnit: parseFloat(costInput),
+      });
+
+      setLogSuccess("Today's energy usage logged successfully!");
+      setUnitsInput('');
+
+      // Refresh dashboard data to reflect the new log
+      fetchDashboardData();
+    } catch (err) {
+      setLogError('Failed to log energy usage. Please try again.');
+      console.error(err);
+    } finally {
+      setLogSaving(false);
+    }
+  };
+
   // ── Fetch dashboard stats & energy logs ───────────────────────
   const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
 
+      const sanctionedLoad = user?.sanctionedLoad || localStorage.getItem('sanctionedLoad') || 4000;
+      const tariffRate = user?.tariffRate || localStorage.getItem('tariffRate') || 5.80;
+      const historicalAvg = user?.historicalAvg || localStorage.getItem('historicalAvg') || 113.53;
+
       // Run both requests in parallel for speed
       const [statsRes, logsRes] = await Promise.all([
-        api.get('/energy/dashboard'),
+        api.get('/energy/dashboard', {
+          params: { sanctionedLoad, tariffRate, historicalAvg }
+        }),
         api.get('/energy/logs'),
       ]);
 
@@ -132,7 +207,15 @@ const Dashboard = () => {
   useEffect(() => {
     fetchDashboardData();
     fetchWeather();
-  }, [fetchDashboardData, fetchWeather]);
+    fetchNotifications();
+
+    const interval = setInterval(() => {
+      fetchDashboardData();
+      fetchNotifications();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [fetchDashboardData, fetchWeather, fetchNotifications]);
 
   // If no real logs yet, show last 7 days with value 0 (flat zero line)
   const zeroChart = Array.from({ length: 7 }, (_, i) => {
@@ -147,6 +230,49 @@ const Dashboard = () => {
 
   return (
     <div>
+      {/* ── Notifications Alerts ─────────────────────────────── */}
+      {notifications.length > 0 && (
+        <div className="notifications-alert-list fade-in-up" style={{ marginBottom: 20 }}>
+          {notifications.map((notif) => (
+            <div key={notif._id} className={`alert-notif-card ${notif.type || 'safety'}`} style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              background: notif.type === 'overload' ? '#fff1f2' : '#fef3c7',
+              border: notif.type === 'overload' ? '1px solid #fecdd3' : '1px solid #fde68a',
+              borderRadius: 12, padding: '14px 20px', marginBottom: 10,
+              boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+              animation: 'fadeInUp 0.3s ease both'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontSize: '1.4rem' }}>
+                  {notif.type === 'overload' ? '🚨' : '⚠️'}
+                </span>
+                <div>
+                  <h5 style={{ margin: 0, fontSize: '0.88rem', fontWeight: 700, color: notif.type === 'overload' ? '#be123c' : '#b45309' }}>
+                    {notif.title}
+                  </h5>
+                  <p style={{ margin: '3px 0 0 0', fontSize: '0.8rem', color: notif.type === 'overload' ? '#9f1239' : '#92400e' }}>
+                    {notif.message}
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => dismissNotification(notif._id)}
+                style={{
+                  background: 'none', border: 'none', 
+                  color: notif.type === 'overload' ? '#be123c' : '#b45309',
+                  fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer',
+                  padding: '4px 8px', borderRadius: 4
+                }}
+                onMouseOver={(e) => e.target.style.textDecoration = 'underline'}
+                onMouseOut={(e) => e.target.style.textDecoration = 'none'}
+              >
+                Dismiss
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ── Header ─────────────────────────────────────────── */}
       <div className="dashboard-header fade-in-up">
         <div>
@@ -206,17 +332,17 @@ const Dashboard = () => {
           label="Predicted Bill (This Month)"
           value={stats ? `₹${stats.predictedMonthlyBill}` : '₹0'}
           unit=""
-          change="No data yet"
+          change={stats ? `Incl. ₹${stats.fixedCharge} fixed charge` : "No data yet"}
           changeType="positive"
           icon={<FiTrendingUp />}
           iconColor="#8b5cf6"
           delay="fade-in-up-3"
         />
         <StatCard
-          label="Units Saved (This Month)"
-          value={stats?.savedToday ?? 0}
+          label="Billable Units (After Free)"
+          value={stats ? stats.billableUnits : 0}
           unit="kWh"
-          change="No data yet"
+          change={stats ? `Total: ${stats.totalUnitsMonth} kWh` : "No data yet"}
           changeType="positive"
           icon={<FiSun />}
           iconColor="#06b6d4"
@@ -331,10 +457,65 @@ const Dashboard = () => {
 
               {/* Active tariff info */}
               <div className="tariff-box">
-                <h4>⚡ Active Tariff</h4>
-                <div className="tariff-value">₹8.00 / kWh</div>
-                <div className="tariff-hours">Peak Hours: 6:00 AM – 10:00 PM</div>
+                <h4>⚡ KERC Active Tariff (FY26-27)</h4>
+                <div className="tariff-value">₹{stats?.tariffRate ? Number(stats.tariffRate).toFixed(2) : '5.80'} / kWh</div>
+                <div className="tariff-hours">Gruha Jyothi: {stats?.entitlementUnits || 125} kWh Entitlement (Free ≤200 kWh)</div>
+                <div className="tariff-hours" style={{marginTop: '4px'}}>
+                  Fixed Charge: ₹150 / kW / month ({stats?.sanctionedLoadKw || 4} kW load)
+                </div>
               </div>
+
+              {stats && Number(stats.predictedMonthlyBill) > 0 && (
+                <div className="bill-breakdown-box" style={{
+                  background: 'linear-gradient(135deg, rgba(139,92,246,0.08), rgba(236,72,153,0.08))',
+                  border: '1px solid rgba(139,92,246,0.2)',
+                  borderRadius: 10, padding: '14px 16px', marginTop: 14
+                }}>
+                  <h4 style={{
+                    fontSize: '0.75rem', color: 'var(--text-secondary)',
+                    marginBottom: 8, textTransform: 'uppercase',
+                    letterSpacing: '0.5px', fontWeight: 600
+                  }}>📊 Estimated Monthly Bill Breakdown</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: '0.8rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Projected consumption:</span>
+                      <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{stats.totalUnitsMonth} kWh</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Gruha Jyothi Entitlement:</span>
+                      <span style={{ fontWeight: 600, color: stats.subsidyForfeited ? '#ef4444' : '#16a34a' }}>
+                        {stats.subsidyForfeited ? '0 kWh (Forfeited >200)' : `-${stats.freeUnits} kWh`}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Billable Units:</span>
+                      <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{stats.billableUnits} kWh</span>
+                    </div>
+                    {stats.subsidyForfeited && (
+                      <div style={{
+                        fontSize: '0.72rem', color: '#ef4444', background: 'rgba(239,68,68,0.1)',
+                        padding: '4px 8px', borderRadius: 4, marginTop: 2, fontWeight: 500
+                      }}>
+                        ⚠️ Total usage &gt; 200 kWh ceiling: Gruha Jyothi subsidy forfeited (100% billable).
+                      </div>
+                    )}
+                    <hr style={{ border: 'none', borderTop: '1px solid rgba(0,0,0,0.06)', margin: '4px 0' }} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Energy Charge:</span>
+                      <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>₹{stats.energyCharge}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Fixed Charge ({stats?.sanctionedLoadKw || 4} kW):</span>
+                      <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>₹{stats.fixedCharge}</span>
+                    </div>
+                    <hr style={{ border: 'none', borderTop: '1px dashed rgba(0,0,0,0.1)', margin: '4px 0' }} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', fontWeight: 700 }}>
+                      <span style={{ color: 'var(--text-primary)' }}>Total Predicted Bill:</span>
+                      <span style={{ color: 'var(--accent-purple)' }}>₹{stats.predictedMonthlyBill}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           ) : (
             <p style={{ color: '#94a3b8', fontSize: '0.9rem', textAlign: 'center', marginTop: 40 }}>
@@ -342,6 +523,55 @@ const Dashboard = () => {
             </p>
           )}
         </div>
+      </div>
+
+      {/* ── Log Consumption Form Card ── */}
+      <div className="log-card fade-in-up-3">
+        <h3>📝 Log Today's Energy Consumption</h3>
+        <p className="card-subtitle">Record your daily energy consumption to save logs to the database and update your dashboard stats dynamically.</p>
+        
+        {logSuccess && <div className="alert alert-success" style={{ marginBottom: 16 }}>{logSuccess}</div>}
+        {logError && <div className="alert alert-error" style={{ marginBottom: 16 }}>{logError}</div>}
+
+        <form onSubmit={handleLogSubmit} className="log-form">
+          <div className="log-form-grid">
+            <div className="form-group">
+              <label>Units Consumed Today</label>
+              <div className="input-with-unit">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="e.g. 12.5"
+                  value={unitsInput}
+                  onChange={(e) => { setUnitsInput(e.target.value); setLogError(''); setLogSuccess(''); }}
+                  required
+                />
+                <span className="unit-label">kWh</span>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Cost per Unit</label>
+              <div className="input-with-unit">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.1"
+                  placeholder="e.g. 5.80"
+                  value={costInput}
+                  onChange={(e) => { setCostInput(e.target.value); setLogError(''); setLogSuccess(''); }}
+                  required
+                />
+                <span className="unit-label">₹</span>
+              </div>
+            </div>
+
+            <button type="submit" className="btn-save-log" disabled={logSaving}>
+              {logSaving ? 'Saving...' : 'Save Consumption Log'}
+            </button>
+          </div>
+        </form>
       </div>
 
       {/* Error banner */}

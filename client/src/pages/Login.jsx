@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FiMail, FiLock, FiUser, FiMapPin, FiEye, FiEyeOff } from 'react-icons/fi';
-import { FaGoogle, FaFacebook, FaBolt } from 'react-icons/fa';
+
 import './Login.css';
 
 /**
@@ -209,16 +209,7 @@ const LoginPage = () => {
             </button>
           </form>
 
-          {/* Social login divider */}
-          <div className="divider">or continue with</div>
-          <div className="social-btns">
-            <button className="social-btn">
-              <FaGoogle style={{ color: '#ea4335' }} /> Google
-            </button>
-            <button className="social-btn">
-              <FaFacebook style={{ color: '#1877f2' }} /> Facebook
-            </button>
-          </div>
+
 
           {/* Switch tab link */}
           <p className="signin-link">
