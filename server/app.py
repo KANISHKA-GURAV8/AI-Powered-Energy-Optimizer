@@ -54,10 +54,12 @@ except Exception as e:
 from routes.auth import auth_bp
 from routes.energy import energy_bp
 from routes.appliances import appliances_bp
+from routes.chat import chat_bp
 
 app.register_blueprint(auth_bp, url_prefix="/api/auth")
 app.register_blueprint(energy_bp, url_prefix="/api/energy")
 app.register_blueprint(appliances_bp, url_prefix="/api/appliances")
+app.register_blueprint(chat_bp, url_prefix="/api/chat")
 
 # ── Start Simulation Engine daemon thread ──────────────────────────────────────
 from routes.energy import init_simulation

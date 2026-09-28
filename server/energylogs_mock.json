@@ -1,0 +1,750 @@
+[
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0001"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-07-21",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 21.54
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0002"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-07-22",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 25.45
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0003"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-07-23",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 20.74
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0004"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-07-24",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 19.8
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0005"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-07-25",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 37.15
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0006"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-07-26",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 36.66
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0007"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-07-27",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 18.31
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0008"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-07-28",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 20.6
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0009"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-07-29",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 23.16
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab000a"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-07-30",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 23.42
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab000b"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-07-31",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 25.32
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab000c"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-01",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 40.22
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab000d"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-02",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 32.81
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab000e"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-03",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 26.8
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab000f"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-04",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 23.69
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0010"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-05",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 23.58
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0011"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-06",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 24.29
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0012"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-07",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 27.6
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0013"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-08",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 40.08
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0014"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-09",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 41.06
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0015"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-10",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 22.24
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0016"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-11",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 22.11
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0017"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-12",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 23.51
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0018"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-13",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 26.68
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0019"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-14",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 22.98
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab001a"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-15",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 39.34
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab001b"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-16",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 35.81
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab001c"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-17",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 26.27
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab001d"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-18",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 25.62
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab001e"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-19",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 25.52
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab001f"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-20",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 21.2
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0020"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-21",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 21.13
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0021"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-22",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 40.56
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0022"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-23",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 39.18
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0023"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-24",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 25.02
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0024"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-25",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 25.53
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0025"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-26",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 28.65
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0026"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-27",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 22.07
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0027"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-28",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 25.97
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0028"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-29",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 42.57
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0029"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-30",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 33.33
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab002a"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-08-31",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 18.48
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab002b"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-01",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 24.96
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab002c"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-02",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 21.9
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab002d"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-03",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 26.19
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab002e"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-04",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 25.99
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab002f"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-05",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 33.04
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0030"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-06",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 40.68
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0031"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-07",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 22.8
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0032"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-08",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 20.82
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0033"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-09",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 26.12
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0034"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-10",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 19.63
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0035"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-11",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 20.51
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0036"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-12",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 42.57
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0037"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-13",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 42.28
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0038"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-14",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 24.86
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0039"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-15",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 23.03
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab003a"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-16",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 27.55
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab003b"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-17",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 23.47
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab003c"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-18",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 23.49
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab003d"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-19",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 38.08
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab003e"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-20",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 34.58
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab003f"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-21",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 22.08
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0040"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-22",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 21.25
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0041"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-23",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 25.32
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0042"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-24",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 20.83
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0043"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-25",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 26.97
+  },
+  {
+    "_id": {
+      "$oid": "6a5c60a7b76b88faceab0044"
+    },
+    "userId": {
+      "$oid": "6a5d1487f293c0ca12805fe7"
+    },
+    "date": "2026-09-26",
+    "costPerUnit": 5.8,
+    "unitsConsumed": 35.98
+  }
+]

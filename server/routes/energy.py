@@ -67,15 +67,38 @@ def get_weather():
     api_key = os.getenv("OPENWEATHER_API_KEY", "")
 
     try:
-        resp = http_requests.get(
-            "https://api.openweathermap.org/data/2.5/weather",
-            params={"q": city, "appid": api_key, "units": "metric"},
+        lat, lon, geo_name = None, None, city
+
+        # Step 1: Geocode city name → exact lat/lon for accuracy
+        geo_resp = http_requests.get(
+            "http://api.openweathermap.org/geo/1.0/direct",
+            params={"q": city, "limit": 1, "appid": api_key},
             timeout=8
         )
+        if geo_resp.ok:
+            geo_data = geo_resp.json()
+            if geo_data:
+                lat      = geo_data[0]["lat"]
+                lon      = geo_data[0]["lon"]
+                geo_name = geo_data[0].get("name", city)
+
+        # Step 2: Fetch weather by coordinates (or fall back to city name)
+        if lat is not None and lon is not None:
+            resp = http_requests.get(
+                "https://api.openweathermap.org/data/2.5/weather",
+                params={"lat": lat, "lon": lon, "appid": api_key, "units": "metric"},
+                timeout=8
+            )
+        else:
+            resp = http_requests.get(
+                "https://api.openweathermap.org/data/2.5/weather",
+                params={"q": city, "appid": api_key, "units": "metric"},
+                timeout=8
+            )
         resp.raise_for_status()
         d = resp.json()
         return jsonify({
-            "city":        d["name"],
+            "city":        geo_name,
             "country":     d["sys"]["country"],
             "temp":        round(d["main"]["temp"]),
             "feelsLike":   round(d["main"]["feels_like"]),
@@ -89,13 +112,95 @@ def get_weather():
         return jsonify({"message": "Failed to fetch weather", "error": str(e)}), 500
 
 
+# ── GET /api/energy/points ────────────────────────────────────────────────────
+@energy_bp.route("/points", methods=["GET"])
+@protect
+def get_energy_points():
+    import csv, math, calendar
+
+    db = current_app.config["DB"]
+
+    # ── Find the last fully completed month ────────────────────────────────────
+    today = date.today()
+    # Go back to the 1st of current month, then subtract 1 day → last day of prev month
+    first_of_current = today.replace(day=1)
+    last_completed   = first_of_current - timedelta(days=1)  # e.g. 2026-08-31
+    comp_year        = last_completed.year                    # 2026
+    comp_month       = last_completed.month                   # 8  (August)
+    comp_month_name  = last_completed.strftime("%B")          # "August"
+
+    # Date range for that completed month in MongoDB
+    month_start = f"{comp_year}-{comp_month:02d}-01"
+    month_end   = f"{comp_year}-{comp_month:02d}-{calendar.monthrange(comp_year, comp_month)[1]:02d}"
+
+    # ── Sum MongoDB logs for completed month ───────────────────────────────────
+    logs = list(db.energylogs.find({
+        "userId": ObjectId(g.user_id),
+        "date": {"$gte": month_start, "$lte": month_end}
+    }))
+    this_year_units = sum(float(l.get("unitsConsumed", 0)) for l in logs)
+
+    # ── Read previous year's value from CSV ───────────────────────────────────
+    csv_path = os.path.join(_script_dir, "..", "ml", "dataset", "monthly_units_consumed.csv")
+    prev_year        = comp_year - 1      # 2025
+    prev_year_units  = None
+    month_names      = {
+        "January": 1, "February": 2, "March": 3, "April": 4,
+        "May": 5, "June": 6, "July": 7, "August": 8,
+        "September": 9, "October": 10, "November": 11, "December": 12
+    }
+    try:
+        with open(csv_path, newline="") as f:
+            reader = csv.reader(f)
+            next(reader, None)  # skip header
+            for row in reader:
+                if len(row) < 3:
+                    continue
+                try:
+                    r_year  = int(row[0].strip())
+                    r_month = month_names.get(row[1].strip(), -1)
+                    r_units = float(row[2].strip())
+                    if r_year == prev_year and r_month == comp_month:
+                        prev_year_units = r_units
+                        break
+                except (ValueError, IndexError):
+                    continue
+    except Exception as e:
+        return jsonify({"message": f"Could not read CSV: {e}"}), 500
+
+    # ── Calculate points ───────────────────────────────────────────────────────
+    if prev_year_units is None:
+        return jsonify({
+            "points":          0,
+            "comparedMonth":   f"{comp_month_name} {comp_year}",
+            "prevYearUnits":   None,
+            "thisYearUnits":   round(this_year_units, 2),
+            "savedUnits":      0,
+            "noData":          True,
+            "message":         f"No CSV data for {comp_month_name} {prev_year}"
+        }), 200
+
+    saved_units = prev_year_units - this_year_units
+    points      = math.floor(saved_units / 10) if saved_units > 0 else 0
+
+    return jsonify({
+        "points":         points,
+        "comparedMonth":  f"{comp_month_name} {comp_year}",
+        "prevYear":       prev_year,
+        "prevYearUnits":  round(prev_year_units, 2),
+        "thisYearUnits":  round(this_year_units, 2),
+        "savedUnits":     round(saved_units, 2),
+        "noData":         False,
+    }), 200
+
+
 # ── GET /api/energy/logs ───────────────────────────────────────────────────────
 @energy_bp.route("/logs", methods=["GET"])
 @protect
 def get_logs():
     db   = current_app.config["DB"]
     logs = list(db.energylogs.find({"userId": ObjectId(g.user_id)})
-                              .sort("date", -1).limit(7))
+                              .sort("date", -1).limit(365))
     logs.reverse()   # chronological order for charts
     return jsonify([_serialize(l) for l in logs]), 200
 
@@ -142,7 +247,8 @@ def get_dashboard():
     # Calculate dynamic Gruha Jyothi Entitlement: average + 10% buffer, capped at 200 units maximum
     entitlement_units = min(GRUHA_JYOTHI_MAX_LIMIT, round(historical_avg_units * 1.10, 2))
 
-    today_log       = logs[0] if logs else None
+    today_str       = str(date.today())
+    today_log       = logs[0] if logs and logs[0]["date"] == today_str else None
     today_units     = today_log["unitsConsumed"] if today_log else 0
     today_cost      = round(today_units * tariff_rate, 2)
 
@@ -180,6 +286,32 @@ def get_dashboard():
     yesterday_units = logs[1]["unitsConsumed"] if len(logs) > 1 else 0
     saved_today     = round(yesterday_units - today_units, 2)
 
+    # ── Rewards & Discount Calculation ──
+    import csv
+    csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "ml", "dataset", "monthly_units_consumed.csv")
+    prev_year_units = 776.589 # Fallback for July 2025
+    try:
+        with open(csv_path, newline="") as f:
+            reader = csv.reader(f)
+            next(reader, None)
+            for row in reader:
+                if len(row) >= 3 and row[0].strip() == "2025" and row[1].strip() == "July":
+                    prev_year_units = float(row[2].strip())
+                    break
+    except Exception:
+        pass
+
+    saved_units = prev_year_units - total_units_this_month
+    if saved_units > 0:
+        reward_points = int(saved_units // 10)
+        discount = float(reward_points)
+    else:
+        reward_points = 0
+        discount = 0.0
+
+    discount = min(discount, predicted_bill)
+    final_bill = predicted_bill - discount
+
     return jsonify({
         "todayUnits":          today_units,
         "todayCost":           str(today_cost),
@@ -196,7 +328,11 @@ def get_dashboard():
         "tariffRate":          tariff_rate,
         "sanctionedLoadKw":    sanctioned_load_kw,
         "energyCharge":        round(energy_charge, 2),
-        "fixedCharge":         round(fixed_charge, 2)
+        "fixedCharge":         round(fixed_charge, 2),
+        "rewardPoints":        reward_points,
+        "discountApplied":     round(discount, 2),
+        "finalBill":           round(final_bill, 2),
+        "prevYearUnits":       round(prev_year_units, 2)
     }), 200
 
 

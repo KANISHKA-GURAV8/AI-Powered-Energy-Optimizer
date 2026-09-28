@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FiPlus, FiMinus, FiEdit2, FiTrash2, FiX, FiZap } from 'react-icons/fi';
 import api from '../services/api';
 import './Appliances.css';
@@ -42,6 +42,7 @@ const Appliances = () => {
   const [editItem, setEditItem]   = useState(null); // null = add, object = edit
   const [form, setForm] = useState({ name: '', power: '', quantity: '', priority: 'Medium' });
   const [formError, setFormError] = useState('');
+  const isSeeding = useRef(false);
 
   // ── Fetch Appliances from Backend ─────────────────────────────
   const fetchAppliances = async () => {
@@ -49,6 +50,9 @@ const Appliances = () => {
       setLoading(true);
       const res = await api.get('/appliances');
       if (res.data.length === 0) {
+        if (isSeeding.current) return;
+        isSeeding.current = true;
+        
         // Auto-seed defaults if database is empty
         const seedPromises = DEFAULT_APPLIANCES.map(app => 
           api.post('/appliances', {
@@ -62,6 +66,7 @@ const Appliances = () => {
         );
         const seeded = await Promise.all(seedPromises);
         setAppliances(seeded.map(r => r.data));
+        isSeeding.current = false;
       } else {
         setAppliances(res.data);
       }

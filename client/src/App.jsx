@@ -7,7 +7,6 @@ import LoginPage from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Appliances from './pages/Appliances';
 import Recommendations from './pages/Recommendations';
-import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
 import './index.css';
 
@@ -28,11 +27,14 @@ import './index.css';
  *   - Login page renders standalone (no sidebar)
  */
 
+import EnergyBot from './components/EnergyBot';
+
 // AppLayout wraps protected pages with the sidebar
 const AppLayout = ({ children }) => (
   <div className="app-layout">
     <Sidebar />
     <main className="main-content">{children}</main>
+    <EnergyBot />
   </div>
 );
 
@@ -58,7 +60,6 @@ const App = () => {
 
           {/* Real routes connected to database & ML model */}
           <Route path="/appliances"      element={<PrivateRoute><AppLayout><Appliances /></AppLayout></PrivateRoute>} />
-          <Route path="/analytics"       element={<PrivateRoute><AppLayout><Analytics /></AppLayout></PrivateRoute>} />
           <Route path="/recommendations" element={<PrivateRoute><AppLayout><Recommendations /></AppLayout></PrivateRoute>} />
           <Route path="/settings"        element={<PrivateRoute><AppLayout><Settings /></AppLayout></PrivateRoute>} />
 

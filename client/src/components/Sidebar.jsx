@@ -26,7 +26,6 @@ const Sidebar = () => {
   const navItems = [
     { label: 'Dashboard',       icon: <FiGrid />,      path: '/dashboard' },
     { label: 'Appliances',      icon: <FiZap />,       path: '/appliances' },
-    { label: 'Analytics',       icon: <FiBarChart2 />, path: '/analytics' },
     { label: 'Recommendations', icon: <FiThumbsUp />,  path: '/recommendations' },
     { label: 'Settings',        icon: <FiSettings />,  path: '/settings' },
   ];
