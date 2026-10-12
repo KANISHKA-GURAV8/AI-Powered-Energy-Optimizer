@@ -18,8 +18,8 @@ def login():
     global TOKEN
     print("Logging into simulator...")
     res = requests.post(f"{BASE_URL}/auth/login", json={
-        "email": "test@gmail.com",
-        "password": "testing"
+        "email": "kanishkagurav9@gmail.com",
+        "password": "kanishka"
     })
     if res.status_code == 200:
         TOKEN = res.json().get("token")
